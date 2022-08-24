@@ -1,11 +1,16 @@
 # See https://www.dartlang.org/guides/libraries/private-files
 
+# Files belong to VS Code
+.vscode
+
 # Files and directories created by pub
 .dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
 .packages
+.pub-cache/
+.pub/
 build/
-# If you're building an application, you may want to check-in your pubspec.lock
-pubspec.lock
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.
@@ -19,3 +24,17 @@ doc/api/
 *.js_
 *.js.deps
 *.js.map
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
