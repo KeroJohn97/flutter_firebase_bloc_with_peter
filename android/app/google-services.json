@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "753805890923",
+    "project_id": "fir-bloc-with-peter",
+    "storage_bucket": "fir-bloc-with-peter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:753805890923:android:5c2c2dc8de833ce109682e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_firebase_bloc_with_peter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "753805890923-bv5oht5lvdn463kptm35psr2vpd2u67f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqRWZ9IKenQ7Xpx799mJGB3yKgpMpqFDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "753805890923-bv5oht5lvdn463kptm35psr2vpd2u67f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

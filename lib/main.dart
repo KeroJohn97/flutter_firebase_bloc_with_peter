@@ -1,8 +1,12 @@
 import 'dart:io';
 
 import 'package:cupertino_will_pop_scope/cupertino_will_pop_scope.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_firebase_bloc_with_peter/blocs/simple_bloc_observer.dart';
+import 'package:flutter_firebase_bloc_with_peter/firebase_options.dart';
 import 'package:flutter_firebase_bloc_with_peter/helpers/translation_helper.dart';
 import 'package:flutter_firebase_bloc_with_peter/pages/main_page.dart';
 import 'package:flutter_firebase_bloc_with_peter/route_generator.dart';
@@ -15,6 +19,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = SimpleBlocObserver();
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top],
@@ -22,6 +27,7 @@ void main() async {
   if (Platform.isAndroid) {
     await AndroidInAppWebViewController.setWebContentsDebuggingEnabled(true);
   }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await ScreenUtil.ensureScreenSize();
   runApp(const MyApp());
