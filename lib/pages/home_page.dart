@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_firebase_bloc_with_peter/pages/message_page.dart';
 import 'package:flutter_firebase_bloc_with_peter/pages/welcome_page.dart';
 import 'package:get/get.dart';
+import 'package:line_icons/line_icon.dart';
+import 'package:line_icons/line_icons.dart';
 
 import '../blocs/authentication/authentication_bloc.dart';
 import '../blocs/database/database_bloc.dart';
@@ -45,6 +49,11 @@ class HomePage extends StatelessWidget {
               const SystemUiOverlayStyle(statusBarColor: Colors.blue),
           title:
               Text((state is AuthenticationSuccess) ? state.displayName! : ''),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.pushNamed(context, MessagePage.route,
+              arguments: FirebaseFirestore.instance),
+          child: const Icon(Icons.chat),
         ),
         body: BlocBuilder<DatabaseBloc, DatabaseState>(
           builder: (context, state) {
