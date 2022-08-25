@@ -1,5 +1,3 @@
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
 class TextHelper {
   TextHelper._();
   static const noData = 'No data';
@@ -30,49 +28,4 @@ class TextHelper {
   static const textHome = "Home";
   static const textNoData = "No Data Available!";
   static const textFixIssues = "Please fill the data correctly!";
-}
-
-class LanguageDatum extends GetxController {
-  LanguageDatum({
-    this.id,
-    this.name,
-    this.status,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
-  });
-
-  int? id;
-  String? name;
-  int? status;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  dynamic deletedAt;
-
-  factory LanguageDatum.fromJson(Map<String, dynamic> json) => LanguageDatum(
-        id: json["id"] ?? 0,
-        name: json["name"] ?? "",
-        status: json["status"] ?? "",
-        createdAt: json["created_at"] != null
-            ? DateTime.parse(json["created_at"])
-            : null,
-        updatedAt: json["updated_at"] != null
-            ? DateTime.parse(json["updated_at"])
-            : null,
-        deletedAt: json["deleted_at"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "status": status,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
-        "deleted_at": deletedAt,
-      };
-
-  @override
-  String toString() {
-    return 'LanguageDatum(id: $id, name: $name, status: $status, createdAt: $createdAt, updateAt: $updatedAt, deletedAt: $deletedAt)';
-  }
 }

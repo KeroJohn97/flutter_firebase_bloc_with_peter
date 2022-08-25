@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cupertino_will_pop_scope/cupertino_will_pop_scope.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+bool useFirestoreEmulator = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +37,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await ScreenUtil.ensureScreenSize();
+  if (useFirestoreEmulator) {
+    FirebaseFirestore.instance.settings = const Settings(
+        host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
+  }
   runApp(const MyApp());
 }
 
