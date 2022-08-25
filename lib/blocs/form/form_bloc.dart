@@ -29,34 +29,29 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
     on<NameChanged>(_onNameChanged);
     on<AgeChanged>(_onAgeChanged);
     on<FormSubmitted>(_onFormSubmitted);
-    // on<FormSucceeded>(_onFormSucceeded);
+    on<FormSucceeded>(_onFormSucceeded);
   }
-
   final RegExp _emailRegExp = RegExp(
     r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$',
+  );
+  final RegExp _passwordRegExp = RegExp(
+    r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$',
   );
 
   bool _isEmailValid(String email) {
     return _emailRegExp.hasMatch(email);
   }
 
-  final RegExp _passwordRegExp = RegExp(r'^');
-
   bool _isPasswordValid(String password) {
     return _passwordRegExp.hasMatch(password);
   }
 
-  final RegExp _ageRegExp = RegExp(r'');
-
-  bool _isAgeValid(int age) {
-    return _ageRegExp.hasMatch(age.toString());
+  bool _isNameValid(String? displayName) {
+    return displayName!.isNotEmpty;
   }
 
-  final RegExp _nameRegExp = RegExp(r'');
-
-  bool _isNameValid(String? name) {
-    if (name == null) return false;
-    return _nameRegExp.hasMatch(name);
+  bool _isAgeValid(int age) {
+    return age >= 1 && age <= 120 ? true : false;
   }
 
   _onEmailChanged(EmailChanged event, Emitter<FormsValidate> emit) {
@@ -73,7 +68,6 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
   _onPasswordChanged(PasswordChanged event, Emitter<FormsValidate> emit) {
     emit(state.copyWith(
       isFormSuccessful: false,
-      isFormValid: false,
       isFormValidateFailed: false,
       errorMessage: "",
       password: event.password,
@@ -81,25 +75,23 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
     ));
   }
 
-  _onAgeChanged(AgeChanged event, Emitter<FormsValidate> emit) {
-    emit(state.copyWith(
-      isFormSuccessful: false,
-      isFormValid: false,
-      isFormValidateFailed: false,
-      errorMessage: "",
-      age: event.age,
-      isAgeValid: _isAgeValid(event.age),
-    ));
-  }
-
   _onNameChanged(NameChanged event, Emitter<FormsValidate> emit) {
     emit(state.copyWith(
       isFormSuccessful: false,
-      isFormValid: false,
       isFormValidateFailed: false,
       errorMessage: "",
       displayName: event.displayName,
       isNameValid: _isNameValid(event.displayName),
+    ));
+  }
+
+  _onAgeChanged(AgeChanged event, Emitter<FormsValidate> emit) {
+    emit(state.copyWith(
+      isFormSuccessful: false,
+      isFormValidateFailed: false,
+      errorMessage: "",
+      age: event.age,
+      isAgeValid: _isAgeValid(event.age),
     ));
   }
 
@@ -117,17 +109,18 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
     }
   }
 
-  _authenticateUser(
+  _updateUIAndSignUp(
       FormSubmitted event, Emitter<FormsValidate> emit, UserModel user) async {
     emit(state.copyWith(
-      errorMessage: "",
-      isFormValid:
-          _isPasswordValid(state.password) && _isEmailValid(state.email),
-      isLoading: true,
-    ));
+        errorMessage: "",
+        isFormValid: _isPasswordValid(state.password) &&
+            _isEmailValid(state.email) &&
+            _isAgeValid(state.age) &&
+            _isNameValid(state.displayName),
+        isLoading: true));
     if (state.isFormValid) {
       try {
-        UserCredential? authUser = await _authenticationRepository.signIn(user);
+        UserCredential? authUser = await _authenticationRepository.signUp(user);
         UserModel updatedUser = user.copyWith(
             uid: authUser!.user!.uid, isVerified: authUser.user!.emailVerified);
         await _databaseRepository.saveUserData(updatedUser);
@@ -135,11 +128,10 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
           emit(state.copyWith(isLoading: false, errorMessage: ""));
         } else {
           emit(state.copyWith(
-            isFormValid: false,
-            errorMessage:
-                "Sorry, your password or email address is incorrect, please check.",
-            isLoading: false,
-          ));
+              isFormValid: false,
+              errorMessage:
+                  "Please Verify your email, by clicking the link sent to you by mail.",
+              isLoading: false));
         }
       } on FirebaseAuthException catch (e) {
         emit(state.copyWith(
@@ -151,31 +143,26 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
     }
   }
 
-  _updateUIAndSignUp(
+  _authenticateUser(
       FormSubmitted event, Emitter<FormsValidate> emit, UserModel user) async {
     emit(state.copyWith(
-      errorMessage: "",
-      isFormValid: _isPasswordValid(state.password) &&
-          _isEmailValid(state.email) &&
-          _isAgeValid(state.age) &&
-          _isNameValid(state.displayName),
-      isLoading: true,
-    ));
+        errorMessage: "",
+        isFormValid:
+            _isPasswordValid(state.password) && _isEmailValid(state.email),
+        isLoading: true));
     if (state.isFormValid) {
       try {
-        UserCredential? authUser = await _authenticationRepository.signUp(user);
-        UserModel updatedUser = user.copyWith(
-            uid: authUser!.user!.uid, isVerified: authUser.user!.emailVerified);
-        await _databaseRepository.saveUserData(updatedUser);
+        UserCredential? authUser = await _authenticationRepository.signIn(user);
+        UserModel updatedUser =
+            user.copyWith(isVerified: authUser!.user!.emailVerified);
         if (updatedUser.isVerified!) {
           emit(state.copyWith(isLoading: false, errorMessage: ""));
         } else {
           emit(state.copyWith(
-            isFormValid: false,
-            errorMessage:
-                "Please Verify your email, by clicking the link sent to you by mail.",
-            isLoading: false,
-          ));
+              isFormValid: false,
+              errorMessage:
+                  "Please Verify your email, by clicking the link sent to you by mail.",
+              isLoading: false));
         }
       } on FirebaseAuthException catch (e) {
         emit(state.copyWith(
@@ -185,5 +172,9 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
       emit(state.copyWith(
           isLoading: false, isFormValid: false, isFormValidateFailed: true));
     }
+  }
+
+  _onFormSucceeded(FormSucceeded event, Emitter<FormsValidate> emit) {
+    emit(state.copyWith(isFormSuccessful: true));
   }
 }

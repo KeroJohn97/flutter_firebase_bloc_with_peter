@@ -1,11 +1,8 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_firebase_bloc_with_peter/helpers/color_helper.dart';
 import 'package:flutter_firebase_bloc_with_peter/helpers/text_helper.dart';
 import 'package:flutter_firebase_bloc_with_peter/pages/home_page.dart';
-import 'package:flutter_firebase_bloc_with_peter/pages/signup_page.dart';
 import 'package:get/get.dart';
 
 import '../blocs/authentication/authentication_bloc.dart';
@@ -13,12 +10,11 @@ import '../blocs/form/form_bloc.dart';
 import '../widgets/error_dialog.dart';
 
 OutlineInputBorder border = const OutlineInputBorder(
-  borderSide: BorderSide(color: ColorHelper.kBorderColor, width: 3.0),
-);
+    borderSide: BorderSide(color: ColorHelper.kBorderColor, width: 3.0));
 
-class LoginPage extends StatelessWidget {
-  static const route = '/login';
-  const LoginPage({Key? key}) : super(key: key);
+class SignupPage extends StatelessWidget {
+  static const route = '/signup';
+  const SignupPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +30,10 @@ class LoginPage extends StatelessWidget {
                       ErrorDialog(errorMessage: state.errorMessage));
             } else if (state.isFormValid && !state.isLoading) {
               context.read<AuthenticationBloc>().add(AuthenticationStarted());
+              context.read<FormBloc>().add(const FormSucceeded());
             } else if (state.isFormValidateFailed) {
               ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(TextHelper.fixIssues.tr)));
+                  SnackBar(content: Text(TextHelper.textFixIssues.tr)));
             }
           },
         ),
@@ -44,48 +41,35 @@ class LoginPage extends StatelessWidget {
           listener: (context, state) {
             if (state is AuthenticationSuccess) {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                  HomePage.route, (Route<dynamic> route) => route.isFirst);
+                  HomePage.route, (route) => route.isFirst);
             }
           },
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
-          systemOverlayStyle:
-              const SystemUiOverlayStyle(statusBarColor: Colors.white),
-        ),
         backgroundColor: ColorHelper.kPrimaryColor,
         body: Center(
           child: SingleChildScrollView(
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset("assets/images/sign_in.png"),
-              RichText(
+              Image.asset("assets/images/main_img.png"),
+              Text(TextHelper.textRegister.tr,
                   textAlign: TextAlign.center,
-                  text: TextSpan(children: <TextSpan>[
-                    TextSpan(
-                        text: TextHelper.textSignInTitle.tr,
-                        style: const TextStyle(
-                          color: ColorHelper.kBlackColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30.0,
-                        )),
-                  ])),
-              SizedBox(height: size.height * 0.01),
-              const Text(
-                TextHelper.textSmallSignIn,
-                style: TextStyle(color: ColorHelper.kDarkGreyColor),
-              ),
+                  style: const TextStyle(
+                    color: ColorHelper.kBlackColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30.0,
+                  )),
               Padding(padding: EdgeInsets.only(bottom: size.height * 0.02)),
               const _EmailField(),
               SizedBox(height: size.height * 0.01),
               const _PasswordField(),
               SizedBox(height: size.height * 0.01),
+              const _DisplayNameField(),
+              SizedBox(height: size.height * 0.01),
+              const _AgeField(),
+              SizedBox(height: size.height * 0.01),
               const _SubmitButton(),
-              const _SignInNavigate(),
             ]),
           ),
         ),
@@ -161,6 +145,72 @@ class _PasswordField extends StatelessWidget {
   }
 }
 
+class _DisplayNameField extends StatelessWidget {
+  const _DisplayNameField({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return BlocBuilder<FormBloc, FormsValidate>(
+      builder: (context, state) {
+        return SizedBox(
+          width: size.width * 0.8,
+          child: TextFormField(
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              border: border,
+              helperText: '''Name must be valid!''',
+              helperMaxLines: 2,
+              labelText: 'Name',
+              errorMaxLines: 2,
+              errorText:
+                  !state.isNameValid ? '''Name cannot be empty!''' : null,
+            ),
+            onChanged: (value) {
+              context.read<FormBloc>().add(NameChanged(value));
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AgeField extends StatelessWidget {
+  const _AgeField({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return BlocBuilder<FormBloc, FormsValidate>(
+      builder: (context, state) {
+        return SizedBox(
+          width: size.width * 0.8,
+          child: TextFormField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+              border: border,
+              helperText: 'Age must be valid, e.g. between 1 - 120',
+              helperMaxLines: 1,
+              labelText: 'Age',
+              errorMaxLines: 1,
+              errorText: !state.isAgeValid
+                  ? 'Age must be valid, e.g. between 1 - 120'
+                  : null,
+            ),
+            onChanged: (value) {
+              context.read<FormBloc>().add(AgeChanged(int.parse(value)));
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _SubmitButton extends StatelessWidget {
   const _SubmitButton({Key? key}) : super(key: key);
 
@@ -177,7 +227,7 @@ class _SubmitButton extends StatelessWidget {
                   onPressed: !state.isFormValid
                       ? () => context
                           .read<FormBloc>()
-                          .add(const FormSubmitted(value: Status.signIn))
+                          .add(const FormSubmitted(value: Status.signUp))
                       : null,
                   style: ButtonStyle(
                       foregroundColor: MaterialStateProperty.all<Color>(
@@ -186,38 +236,10 @@ class _SubmitButton extends StatelessWidget {
                           ColorHelper.kBlackColor),
                       side: MaterialStateProperty.all<BorderSide>(
                           BorderSide.none)),
-                  child: Text(TextHelper.textSignIn.tr),
+                  child: Text(TextHelper.textSignUpBtn.tr),
                 ),
               );
       },
     );
-  }
-}
-
-class _SignInNavigate extends StatelessWidget {
-  const _SignInNavigate({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(children: <TextSpan>[
-          TextSpan(
-              text: TextHelper.textAcc.tr,
-              style: const TextStyle(
-                color: ColorHelper.kDarkGreyColor,
-              )),
-          TextSpan(
-              recognizer: TapGestureRecognizer()
-                ..onTap = () => {
-                      Navigator.of(context).pop(),
-                      Navigator.pushNamed(context, SignupPage.route),
-                    },
-              text: TextHelper.textSignUp.tr,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: ColorHelper.kDarkBlueColor,
-              )),
-        ]));
   }
 }

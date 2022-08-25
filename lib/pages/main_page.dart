@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firebase_bloc_with_peter/pages/login_page.dart';
-import 'package:flutter_firebase_bloc_with_peter/widgets/custom_app_bar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_firebase_bloc_with_peter/pages/home_page.dart';
+import 'package:flutter_firebase_bloc_with_peter/pages/welcome_page.dart';
+
+import '../blocs/authentication/authentication_bloc.dart';
 
 class MainPage extends StatelessWidget {
   static const route = '/';
@@ -8,12 +11,14 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, LoginPage.route),
-        child: const Icon(Icons.person),
-      ),
-      appBar: const CustomAppBar(title: 'Main Page'),
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+      builder: (context, state) {
+        if (state is AuthenticationSuccess) {
+          return const HomePage();
+        } else {
+          return const WelcomePage();
+        }
+      },
     );
   }
 }
