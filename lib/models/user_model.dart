@@ -7,19 +7,35 @@ class UserModel {
   String? password;
   final String? displayName;
   final int? age;
-  UserModel(
-      {this.uid,
-      this.email,
-      this.password,
-      this.displayName,
-      this.age,
-      this.isVerified});
+  List<String>? chatGroupUid;
+  UserModel({
+    this.uid,
+    this.email,
+    this.password,
+    this.displayName,
+    this.age,
+    this.isVerified,
+    this.chatGroupUid,
+  });
+
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      uid: map['uid'],
+      isVerified: map['is_verified'],
+      email: map['email'],
+      password: map['password'],
+      displayName: map['display_name'],
+      age: map['age'],
+      chatGroupUid: map['chat_group_uid'],
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
       'email': email,
-      'displayName': displayName,
+      'display_name': displayName,
       'age': age,
+      'chat_group_uid': chatGroupUid,
     };
   }
 
@@ -27,7 +43,7 @@ class UserModel {
       : uid = doc.id,
         email = doc.data()!["email"],
         age = doc.data()!["age"],
-        displayName = doc.data()!["displayName"];
+        displayName = doc.data()!["display_name"];
 
   UserModel copyWith({
     bool? isVerified,
@@ -36,13 +52,16 @@ class UserModel {
     String? password,
     String? displayName,
     int? age,
+    List<String>? chatGroupUid,
   }) {
     return UserModel(
-        uid: uid ?? this.uid,
-        email: email ?? this.email,
-        password: password ?? this.password,
-        displayName: displayName ?? this.displayName,
-        age: age ?? this.age,
-        isVerified: isVerified ?? this.isVerified);
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      displayName: displayName ?? this.displayName,
+      age: age ?? this.age,
+      isVerified: isVerified ?? this.isVerified,
+      chatGroupUid: chatGroupUid ?? this.chatGroupUid,
+    );
   }
 }

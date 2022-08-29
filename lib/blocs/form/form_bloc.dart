@@ -13,7 +13,8 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
   final AuthenticationRepository _authenticationRepository;
   final DatabaseRepository _databaseRepository;
   FormBloc(this._authenticationRepository, this._databaseRepository)
-      : super(const FormsValidate(
+      : super(
+          const FormsValidate(
             email: "example@gmail.com",
             password: "",
             isEmailValid: true,
@@ -23,7 +24,9 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
             isNameValid: true,
             age: 0,
             isAgeValid: true,
-            isFormValidateFailed: false)) {
+            isFormValidateFailed: false,
+          ),
+        ) {
     on<EmailChanged>(_onEmailChanged);
     on<PasswordChanged>(_onPasswordChanged);
     on<NameChanged>(_onNameChanged);
@@ -111,13 +114,16 @@ class FormBloc extends Bloc<FormEvent, FormsValidate> {
 
   _updateUIAndSignUp(
       FormSubmitted event, Emitter<FormsValidate> emit, UserModel user) async {
-    emit(state.copyWith(
+    emit(
+      state.copyWith(
         errorMessage: "",
         isFormValid: _isPasswordValid(state.password) &&
             _isEmailValid(state.email) &&
             _isAgeValid(state.age) &&
             _isNameValid(state.displayName),
-        isLoading: true));
+        isLoading: true,
+      ),
+    );
     if (state.isFormValid) {
       try {
         UserCredential? authUser = await _authenticationRepository.signUp(user);
